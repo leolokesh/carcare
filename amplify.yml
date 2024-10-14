@@ -39,10 +39,13 @@ test:
     test:
       commands:
         - echo "No tests configured for Streamlit"
+  artifacts:
+    baseDirectory: /
+    files:
+      - '**/*'  # You still need to provide the artifacts section for the test phase, even if no test files are generated.
 
 customHeaders:
   - pattern: '**/*'
     headers:
       - key: "Content-Type"
         value: "text/html; charset=UTF-8"
-
