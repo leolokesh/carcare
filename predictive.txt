@@ -1,0 +1,256 @@
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+
+sample_data = [
+    {
+        'TransactionID': 'T0001',
+        'Date': '2023-01-01',
+        'StoreID': 'S001',
+        'SKU_ID': 'P001',
+        'QuantitySold': 5,
+        'UnitPrice': 50,
+        'Revenue': 250,
+        'PromotionID': 'PR001',
+        'PromotionType': 'Discount',
+        'FootTrafficCount': 250,
+        'CurrentStockLevel': 15,
+        'RestockDate': '2023-01-06',
+        'LastRestockDate': '2022-12-30',
+        'StockoutDays': 0,
+        'SupplierID': 'SUP001',
+        'SupplierName': 'Supplier A',
+        'LeadTime': '5 days',
+        'StockoutRiskScore': 0.85,
+        'RecommendedRestockQuantity': 50,
+        'RecommendedRestockDate': '2023-01-04',
+        'ClusterID': 'C1',
+        'PerformanceIssue': 'Low Conversion Rate',
+        'AnomalyFlag': 0,
+        'AnomalyType': '',
+    },
+    {
+        'TransactionID': 'T0002',
+        'Date': '2023-01-01',
+        'StoreID': 'S002',
+        'SKU_ID': 'P002',
+        'QuantitySold': 3,
+        'UnitPrice': 70,
+        'Revenue': 210,
+        'PromotionID': '',
+        'PromotionType': '',
+        'FootTrafficCount': 220,
+        'CurrentStockLevel': 10,
+        'RestockDate': '2023-01-07',
+        'LastRestockDate': '2022-12-29',
+        'StockoutDays': 0,
+        'SupplierID': 'SUP002',
+        'SupplierName': 'Supplier B',
+        'LeadTime': '7 days',
+        'StockoutRiskScore': 0.25,
+        'RecommendedRestockQuantity': 15,
+        'RecommendedRestockDate': '2023-01-07',
+        'ClusterID': 'C2',
+        'PerformanceIssue': 'Inventory Mismanagement',
+        'AnomalyFlag': 0,
+        'AnomalyType': '',
+    },
+    {
+        'TransactionID': 'T0003',
+        'Date': '2023-01-01',
+        'StoreID': 'S003',
+        'SKU_ID': 'P003',
+        'QuantitySold': 2,
+        'UnitPrice': 30,
+        'Revenue': 60,
+        'PromotionID': 'PR002',
+        'PromotionType': 'Bundle',
+        'FootTrafficCount': 180,
+        'CurrentStockLevel': 14,
+        'RestockDate': '2023-01-05',
+        'LastRestockDate': '2022-12-28',
+        'StockoutDays': 0,
+        'SupplierID': 'SUP001',
+        'SupplierName': 'Supplier A',
+        'LeadTime': '5 days',
+        'StockoutRiskScore': 0.58,
+        'RecommendedRestockQuantity': 30,
+        'RecommendedRestockDate': '2023-01-05',
+        'ClusterID': 'C1',
+        'PerformanceIssue': 'Low Conversion Rate',
+        'AnomalyFlag': 0,
+        'AnomalyType': '',
+    },
+    {
+        'TransactionID': 'T0004',
+        'Date': '2023-01-01',
+        'StoreID': 'S004',
+        'SKU_ID': 'P004',
+        'QuantitySold': 4,
+        'UnitPrice': 40,
+        'Revenue': 160,
+        'PromotionID': '',
+        'PromotionType': '',
+        'FootTrafficCount': 300,
+        'CurrentStockLevel': 22,
+        'RestockDate': '2023-01-08',
+        'LastRestockDate': '2022-12-27',
+        'StockoutDays': 0,
+        'SupplierID': 'SUP003',
+        'SupplierName': 'Supplier C',
+        'LeadTime': '6 days',
+        'StockoutRiskScore': 0.22,
+        'RecommendedRestockQuantity': 14,
+        'RecommendedRestockDate': '2023-01-08',
+        'ClusterID': 'C3',
+        'PerformanceIssue': 'High Stockouts',
+        'AnomalyFlag': 0,
+        'AnomalyType': '',
+    },
+    {
+        'TransactionID': 'T0005',
+        'Date': '2023-01-01',
+        'StoreID': 'S005',
+        'SKU_ID': 'P005',
+        'QuantitySold': 6,
+        'UnitPrice': 35,
+        'Revenue': 210,
+        'PromotionID': 'PR003',
+        'PromotionType': 'Buy One Get One',
+        'FootTrafficCount': 200,
+        'CurrentStockLevel': 7,
+        'RestockDate': '2023-01-09',
+        'LastRestockDate': '2022-12-26',
+        'StockoutDays': 0,
+        'SupplierID': 'SUP004',
+        'SupplierName': 'Supplier D',
+        'LeadTime': '4 days',
+        'StockoutRiskScore': 0.78,
+        'RecommendedRestockQuantity': 45,
+        'RecommendedRestockDate': '2023-01-09',
+        'ClusterID': 'C2',
+        'PerformanceIssue': 'Inventory Mismanagement',
+        'AnomalyFlag': 0,
+        'AnomalyType': '',
+    },
+    {
+        'TransactionID': 'T0006',
+        'Date': '2023-01-01',
+        'StoreID': 'S006',
+        'SKU_ID': 'P006',
+        'QuantitySold': 1,
+        'UnitPrice': 80,
+        'Revenue': 80,
+        'PromotionID': '',
+        'PromotionType': '',
+        'FootTrafficCount': 260,
+        'CurrentStockLevel': 13,
+        'RestockDate': '2023-01-10',
+        'LastRestockDate': '2022-12-25',
+        'StockoutDays': 0,
+        'SupplierID': 'SUP005',
+        'SupplierName': 'Supplier E',
+        'LeadTime': '8 days',
+        'StockoutRiskScore': 0.48,
+        'RecommendedRestockQuantity': 22,
+        'RecommendedRestockDate': '2023-01-10',
+        'ClusterID': 'C4',
+        'PerformanceIssue': 'Ineffective Marketing',
+        'AnomalyFlag': 0,
+        'AnomalyType': '',
+    },
+    {
+        'TransactionID': 'T0007',
+        'Date': '2023-01-01',
+        'StoreID': 'S007',
+        'SKU_ID': 'P007',
+        'QuantitySold': 7,
+        'UnitPrice': 25,
+        'Revenue': 175,
+        'PromotionID': 'PR004',
+        'PromotionType': 'Clearance',
+        'FootTrafficCount': 240,
+        'CurrentStockLevel': 18,
+        'RestockDate': '2023-01-11',
+        'LastRestockDate': '2022-12-24',
+        'StockoutDays': 0,
+        'SupplierID': 'SUP006',
+        'SupplierName': 'Supplier F',
+        'LeadTime': '5 days',
+        'StockoutRiskScore': 0.88,
+        'RecommendedRestockQuantity': 58,
+        'RecommendedRestockDate': '2023-01-11',
+        'ClusterID': 'C3',
+        'PerformanceIssue': 'High Stockouts',
+        'AnomalyFlag': 1,
+        'AnomalyType': 'Spike',
+    },
+    # Add more items as necessary...
+]
+
+
+# Convert to pandas DataFrame
+df = pd.DataFrame(sample_data)
+
+# Function to process stockout risk data
+def process_stockout_risk_data(df):
+    grouped_data = df.groupby('SKU_ID').agg({'StockoutRiskScore': 'mean'}).reset_index()
+    grouped_data.columns = ['SKU_ID', 'AverageRisk']
+    return grouped_data
+
+# Function to process sales trend data
+def process_sales_trend_data(df):
+    grouped_data = df.groupby('Date').agg({'Revenue': 'sum', 'QuantitySold': 'sum'}).reset_index()
+    return grouped_data
+
+# Function to process cluster analysis data
+def process_cluster_data(df):
+    cluster_data = df[['FootTrafficCount', 'Revenue', 'QuantitySold', 'ClusterID']]
+    return cluster_data
+
+# Streamlit Sidebar
+st.sidebar.title("Walkaroo Sales Dashboard")
+graph_choice = st.sidebar.radio("Choose Graph:", 
+                                ['Stockout Risk', 'Sales Trend', 'Cluster Analysis'])
+
+# Main Area based on user selection
+if graph_choice == 'Stockout Risk':
+    st.header("Predictive Stockout Risk Model")
+    stockout_data = process_stockout_risk_data(df)
+    
+    fig = px.bar(stockout_data, x='SKU_ID', y='AverageRisk', 
+                 title="Stockout Risk by SKU", 
+                 labels={'AverageRisk': 'Stockout Risk Score'},
+                 color='AverageRisk',
+                 color_continuous_scale=px.colors.sequential.Viridis)
+    st.plotly_chart(fig)
+
+elif graph_choice == 'Sales Trend':
+    st.header("Sales Trend Analysis")
+    sales_trend_data = process_sales_trend_data(df)
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=sales_trend_data['Date'], y=sales_trend_data['Revenue'], 
+                             mode='lines+markers', name='Revenue'))
+    fig.add_trace(go.Scatter(x=sales_trend_data['Date'], y=sales_trend_data['QuantitySold'], 
+                             mode='lines+markers', name='Quantity Sold'))
+    fig.update_layout(title="Sales Trend Over Time", xaxis_title='Date', yaxis_title='Amount')
+    st.plotly_chart(fig)
+
+elif graph_choice == 'Cluster Analysis':
+    st.header("Root Cause Analysis via Clustering")
+    cluster_data = process_cluster_data(df)
+    
+    fig = px.scatter(cluster_data, x='FootTrafficCount', y='Revenue', 
+                     size='QuantitySold', color='ClusterID', 
+                     title="Cluster Analysis", hover_data=['ClusterID'])
+    st.plotly_chart(fig)
+
+# Insights Section
+st.subheader("Overall Insights & Suggestions")
+st.markdown("""
+- **Optimize Stock for High-Traffic Stores**: Cluster C1 (S001, S003, S005) needs stock prioritization to capture sales opportunities.
+- **Prevent Stockouts Proactively**: Monitor real-time inventory to avoid high stockout risks for products like P007.
+- **Improve Marketing for Low Conversions**: Enhance marketing and product positioning for stores in Cluster C1 to boost conversion rates.
+""")
